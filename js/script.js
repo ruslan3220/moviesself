@@ -4,13 +4,17 @@ let elForm = document.querySelector("#form")
 let elSearchInput = document.querySelector("#search_input")
 let elRatingValue = document.querySelector("#rating")
 let elSelectValue = document.querySelector("#category-select")
+let elSelectSort = document.querySelector("#selectOptionSort")
 let elCounter = document.querySelector("#search_result")
+let elBookmarkedMovies = document.querySelector(".bookmarked-movies")
 let elTemplate =document.querySelector("#template-button").content;
+let elBookmarkTemplate =document.querySelector("#bookmarked").content;
 
-// SPLICE MOVIES 
-movies.splice(100);
-let normalizeMovies = movies.map((movie)=>{
+// SPLICE MOVIES  
+movies.splice(300);
+let normalizeMovies = movies.map((movie, index)=>{
     return{
+        id: index + 1,
         Title: movie.Title.toString(),
         Year: movie.movie_year,
         Rating: movie.imdb_rating,
@@ -41,35 +45,6 @@ function renderMovie(item, wrapper) {
 }
 renderMovie(normalizeMovies, elWrapper)
 
-// SEARCH MOVIE
-// function serachFind(movie_title) {
-//     return normalizeMovies.filter(function (movie) {
-//         return movie.Title.match(movie_title)
-         
-//     })
-// }
-
-// elForm.addEventListener("input", (evt) => {
-//     evt.preventDefault()
-//     let searchValue = elSearchInput.value.trim();
-
-//     let pattern = new RegExp (searchValue, "gi")
-//     let result = serachFind(pattern)
-//     elWrapper.innerHTML = null
-//     renderMovie(result, elWrapper)
-// })
-
-// RATING MOVIES 
-// elForm.addEventListener("submit", (evt) => {
-    //     evt.preventDefault();
-    //     let ratingValue = elRatingValue.value;
-//     let ratingmovies = normalizeMovies.filter(item => {
-//         if(ratingValue <= item.Rating){
-//             return item
-//         }
-//     })
-//     renderMovie(ratingmovies, elWrapper)
-// })
 
 // SPLITTED CATEGORIES  
 
@@ -96,52 +71,134 @@ newArray.forEach(item => {
     newOption.value = item
     newOption.textContent = item
     elFragmentOption.appendChild(newOption)
-    elSelectValue.appendChild(elFragmentOption)
 })
+elSelectValue.appendChild(elFragmentOption)
 
 }
 newCategories(normalizeMovies)
 
+// All input 
 
-// // LISTENED CATEGORIES 
-// elForm.addEventListener("submit", (evt) => {
-//     evt.preventDefault();
-//     let optionValue = elSelectValue.value;
-//     if(optionValue === "All"){
-//         return normalizeMovies 
-//     } else{
-//         normalizeMovies.filter(item =>{
-//             item.split("|").includes(item)
-//         })
-//     }
-//     renderMovie(newArray, elWrapper)
-// })
+let findMovies = function (movieTitle, minRating, genre) {
+    return normalizeMovies.filter(movie => {
+        let doesCategories = genre === "All" || movie.Categories.includes(genre)
 
-//++++++++++++++++++++++++++++++++++++++
-
-// All FORM INPUT 
-
-let findMovies = function (movie_title, minRating, genre) {
-    return normalizeMovies.filter(function (movie) {
-        let doesMatchCategory =
-        genre === "All" || movie.Categories.split("|").includes(genre);
-      return (
-        movie.Title.match(movie_title) &&
-        movie.Rating >= minRating &&
-        doesMatchCategory
-      );
-    });
-  };
-  
-  elForm.addEventListener("input", function (evt) {
-    evt.preventDefault();
-  
+        return movie.Title.match(movieTitle) && movie.Rating >= minRating && doesCategories;
+    })
+}
+elForm.addEventListener("input", (evt) => {
+    evt.preventDefault()
     let searchInput = elSearchInput.value.trim();
     let ratingInput = elRatingValue.value.trim();
-    let selectOption = elSelectValue.value;
-  
+    let selectOptionValue = elSelectValue.value;
+    let selectSort = elSelectSort.value;
+    
     let pattern = new RegExp(searchInput, "gi");
-    let resultArray = findMovies(pattern, ratingInput, selectOption);
-  
-    renderMovie(resultArray, elWrapper);
-  });
+    let result = findMovies(pattern, ratingInput, selectOptionValue)
+    
+    if (selectSort === "high") {
+        result.sort((b, a) => a.Rating - b.Rating);
+    }
+    
+    if (selectSort === "low") {
+        result.sort((a, b) => a.Rating - b.Rating);
+    }
+
+    if(selectSort === "title-grow")
+    result.sort(function(a, b){
+        let x = a.Title.toLowerCase();
+        let y = b.Title.toLowerCase();
+        if (x < y) {return -1;}
+        if (x > y) {return 1;}
+        return 0;
+      });
+
+    if(selectSort === "title-decrease")
+    result.sort(function(a, b){
+        let x = a.Title.toLowerCase();
+        let y = b.Title.toLowerCase();
+        if (x < y) {return 1;}
+        if (x > y) {return -1;}
+        return 0;
+      });
+    
+     
+    if (selectSort === "new-year") {
+        result.sort((b, a) => a.Year - b.Year);
+    }
+    if (selectSort === "old-year") {
+        result.sort((a, b) => a.Year - b.Year);
+    }
+   
+    renderMovie(result, elWrapper);
+})
+
+
+
+//local
+
+
+// let storage = window.localStorage;
+
+// let bookmarkedMovies = JSON.parse(storage.getItem("movieArray")) || [];
+
+// // if (getItemFromLocalStorage) {
+// //     bookmarkedMovies = getItemFromLocalStorage
+// // }else {
+// //     bookmarkedMovies = []
+// // }
+
+// elWrapper.addEventListener("click", function (evt) {
+//   let movieID = evt.target.dataset.movieItemId;
+
+//   if (movieID) {
+//     let foundMovie = normolizedMovieList.find((item) => item.id == movieID);
+
+//     let doesInclude = bookmarkedMovies.findIndex(
+//       (item) => item.id === foundMovie.id
+//     );
+
+//     if (doesInclude === -1) {
+//       bookmarkedMovies.push(foundMovie);
+//       storage.setItem("movieArray", JSON.stringify(bookmarkedMovies));
+
+//       renderBookmarkedMovies(bookmarkedMovies, elBookmarkedMovies);
+//     }
+//   }
+// });
+
+// //Render bookmarked movies
+// function renderBookmarkedMovies(array, wrapper) {
+//   wrapper.innerHTML = null;
+//   let elFragment = document.createDocumentFragment();
+//   array.forEach(function (item) {
+//     let templateBookmark = elBookmarkTemplate.cloneNode(true);
+
+//     templateBookmark.querySelector(".movie-title").textContent = item.Title;
+//     templateBookmark.querySelector(".btn-remove").dataset.markedId = item.id;
+
+//     elFragment.appendChild(templateBookmark);
+//     console.log(elFragment);
+//   });
+
+//   wrapper.appendChild(elFragment);
+// }
+
+// renderBookmarkedMovies(bookmarkedMovies, elBookmarkedMovies);
+
+// elBookmarkedMovies.addEventListener("click", function (evt) {
+//   let removedMovieId = evt.target.dataset.markedId;
+
+//   console.log(removedMovieId);
+//   if (removedMovieId) {
+//     let indexOfMovie = bookmarkedMovies.findIndex(function (item) {
+//       return item.id == removedMovieId;
+//     });
+
+//     bookmarkedMovies.splice(indexOfMovie, 1);
+//     storage.setItem("movieArray", JSON.stringify(bookmarkedMovies));
+//     storage.clear();
+
+//     renderBookmarkedMovies(bookmarkedMovies, elBookmarkedMovies);
+//   }
+// });

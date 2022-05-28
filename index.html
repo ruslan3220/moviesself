@@ -41,9 +41,13 @@
                   <option value="All">All</option>
                 </select>
 
-                <select class="form-select mt-3" name="" id="selectOption">
-                  <option value="rating-high">Rating (high to low)</option>
-                  <option value="rating-low">Rating (low to high)</option>
+                <select class="form-select mt-3" name="" id="selectOptionSort">
+                  <option value="high">Rating (high to low)</option>
+                  <option value="low">Rating (low to high)</option>
+                  <option value="title-grow">A-Z</option>
+                  <option value="title-decrease">Z-A</option>
+                  <option value="new-year">Year (new to old)</option>
+                  <option value="old-year">Year (old to new)</option>
                 </select>
 
                 <button
@@ -57,11 +61,8 @@
 
               <h3 class="h3 mt-4">Bookmarked movies</h3>
 
-              <ul class="list-group pb-5">
-                <li class="list-group-item">
-                  <p class="fw-bold">Avegers: Infinity War</p>
-                  <button type="button" class="btn btn-danger">Remove</button>
-                </li>
+              <ul class="list-group pb-5 bookmarked-movies">
+               
               </ul>
             </div>
 
